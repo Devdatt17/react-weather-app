@@ -1,26 +1,19 @@
-import React,{ useState } from 'react'
+import React from 'react'
+import { useDispatch, useSelector } from 'react-redux';
+import {SEARCH_TEXT} from './redux/action'
+import { WEATHER_DATA } from './redux/action';
 import './App.css';
 
-const api = {
-  key:`${process.env.REACT_APP_API_KEY}`,
-  base:"https://api.openweathermap.org/data/2.5/"
-}
 
 function App() {
 
-    const [query,setQuery] = useState('');
-    const [weather,setWeather] = useState({});
-
+  const dispatch = useDispatch()
+  const searchText = useSelector((state)=>state.reducer)
+  const weatherData = useSelector((state)=>state.weatherReducer)
     const search = evt =>{
       if (evt.key === "Enter"){
-        fetch(`${api.base}weather?q=${query}&units=metric&APPID=${api.key}`)
-        .then(res=>res.json())
-        .then(result =>{
-          setWeather(result);
-          setQuery('');
-          console.log(weather);
-        }
-        );
+        dispatch(WEATHER_DATA(searchText))
+        dispatch(SEARCH_TEXT(''))
       }
     }
 
@@ -39,8 +32,8 @@ function App() {
   return (
       <div>
         <div className={
-            (typeof weather.main != "undefined")
-            ? ((weather.main.temp > 16) 
+            (typeof weatherData.main != "undefined")
+            ? ((weatherData.main.temp > 16) 
               ? 'App warm'
                 :'App')
                 :'App'}>
@@ -51,22 +44,22 @@ function App() {
                 type="text"
                 className="search-bar"
                 placeholder="Search..."
-                onChange={e=>setQuery(e.target.value)}
-                value={query}
+                onChange={e=>dispatch(SEARCH_TEXT(e.target.value))}
+                value={searchText}
                 onKeyPress={search}
                 />
               </div>
-              {(typeof weather.main != "undefined") ? (
+              {(typeof weatherData.main != "undefined") ? (
               <div>
                 <div className="location-box">
-                <div  className="location">{weather.name}, {weather.sys.country}</div>
+                <div  className="location">{weatherData.name}, {weatherData.sys.country}</div>
                   <div className="date">{dateBuilder(new Date())}</div>
               </div>
               <div className="weather-box">
                 <div className="temp">
-                  {Math.round(weather.main.temp)}°c
+                  {Math.round(weatherData.main.temp)}°c
                 </div>
-                <div className="weather">{weather.weather[0].description}</div>
+                <div className="weather">{weatherData.weather[0].description}</div>
               </div>
               </div>
               ):('')}
