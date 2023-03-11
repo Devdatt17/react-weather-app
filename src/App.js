@@ -3,27 +3,26 @@ import { useDispatch, useSelector } from 'react-redux';
 import { SEARCH_TEXT } from './redux/action'
 import { WEATHER_DATA } from './redux/action';
 import './App.css';
-
+import Main from './components/Main';
+import { MONTHS, DAYS } from './constants/MonthsAndDays'
 
 function App() {
 
   const dispatch = useDispatch()
   const searchText = useSelector((state) => state.reducer)
   const weatherData = useSelector((state) => state.weatherReducer)
-  const search = evt => {
-    if (evt.key === "Enter") {
+
+  const search = event => {
+    if (event.key === 'Enter') {
       dispatch(WEATHER_DATA(searchText))
       dispatch(SEARCH_TEXT(''))
     }
   }
 
-  const dateBuilder = d => {
-    let months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-    let days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-
-    let day = days[d.getDay()];
+    const dateBuilder = d => {
+    let day = DAYS[d.getDay()];
     let date = d.getDate();
-    let month = months[d.getMonth()];
+    let month = MONTHS[d.getMonth()];
     let year = d.getFullYear();
 
     return `${day} ${date} ${month} ${year}`;
@@ -38,42 +37,14 @@ function App() {
             : 'App')
           : 'App'}>
 
-        <main>
-          <div className="search-box">
-            <input
-              type="text"
-              className="search-bar"
-              placeholder="Search..."
-              onChange={e => dispatch(SEARCH_TEXT(e.target.value))}
-              value={searchText}
-              onKeyPress={search}
-            />
-          </div>
-          {weatherData && weatherData.cod === 200 ? (
-            <div>
-              <div className="location-box">
-                <div className="location">{weatherData.name}, {weatherData.sys.country}</div>
-                <div className="date">{dateBuilder(new Date())}</div>
-              </div>
-              <div className="weather-box">
-                <div className="temp">
-                  {Math.round(weatherData.main.temp)}°c
-                </div>
-                <div className="weather">{weatherData.weather[0].description}</div>
-              </div>
-            </div>
-          ) : weatherData.message ?
-            (
-              <div className="location-box">
-                <div className='location'>
-                  <h2 className="error-message">
-                    {weatherData.message}
-                  </h2>
-                </div>
-              </div>
-            )
-            : ''}
-        </main>
+        <Main
+          dispatch={dispatch}
+          SEARCH_TEXT={SEARCH_TEXT}
+          searchText={searchText}
+          search={search}
+          weatherData={weatherData}
+          dateBuilder={dateBuilder}
+        />
       </div>
     </div>
   );
